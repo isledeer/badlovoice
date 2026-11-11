@@ -2,8 +2,8 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ "main" ]
-  workflow_dispatch: # 允许手动点击触发
+    branches: [ "main", "master" ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -25,15 +25,27 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          # 这里的魔法在于跳过已经下线的旧 tools 包，只安装必须的
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
-      - name: Install dependencies & Build
+      - name: Accept Android SDK Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+
+      - name: Install dependencies & Build Frontend
         run: |
           cd frontend
           npm install
           npm run build
+
+      - name: Sync Capacitor and Build APK
+        run: |
+          cd frontend
           npx cap sync android
           cd android
           chmod +x gradlew
+          # 开始本地编译 APK
           ./gradlew assembleDebug
 
       - name: Upload APK
