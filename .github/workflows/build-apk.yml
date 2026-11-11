@@ -15,7 +15,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22' # 🚨 唯一修改点：升级到 Node 22
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -26,7 +26,6 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          # 这里的魔法在于跳过已经下线的旧 tools 包，只安装必须的
           packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
       - name: Accept Android SDK Licenses
@@ -45,7 +44,6 @@ jobs:
           npx cap sync android
           cd android
           chmod +x gradlew
-          # 开始本地编译 APK
           ./gradlew assembleDebug
 
       - name: Upload APK
